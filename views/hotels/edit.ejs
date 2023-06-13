@@ -1,0 +1,71 @@
+<%- include('../partials/header.ejs') %>
+<%- include('../partials/navbar.ejs') %>
+
+<div class="breadcrumb-area contact-breadcrumb bg-img bg-overlay jarallax"
+    style="background-image: url(/img/bg-img/18.jpg);">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb-content text-center mt-100">
+                    <h2 class="page-title">Edit a Hotel</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb justify-content-center">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Edit Hotel</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="google-maps-contact-info" style="margin-bottom: 5rem;">
+    <div class="container-fluid">
+        <div class="google-maps-contact-content">
+            <div class="row">
+                <div class="col-12">
+                    <div class="section-heading text-center wow fadeInUp" data-wow-delay="100ms">
+                        <h6>Hotel Management</h6>
+                        <h2>Edit Hotel <%= hotel.name %></h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="roberto-contact-form">
+                        <form action="/hotels/<%= hotel._id %>?_method=PATCH" method="post">
+                            <div class="row">
+                                <div class="col-4" style="margin: auto;">
+                                    <div class="row">
+                                        <div class="col-12 col-lg-12 wow fadeInUp" data-wow-delay="100ms">
+                                            <input type="text" name="hotel[name]" class="form-control mb-30"
+                                                value="<%= hotel.name %>" required placeholder="Hotel Radisson">
+                                        </div>
+                                        <div class="col-12 col-lg-12 wow fadeInUp" data-wow-delay="100ms">
+                                            <input type="text" name="hotel[address]" class="form-control mb-30"
+                                                value="<%= hotel.address %>" required placeholder="New Delhi">
+                                        </div>
+                                        <div class="col-12 col-lg-12 wow fadeInUp" data-wow-delay="100ms">
+                                            <input type="number" name="hotel[price]" class="form-control mb-30"
+                                                value="<%= hotel.price %>" min="100" max="100000" step="1" required
+                                                placeholder="Hotel Price">
+                                        </div>
+                                        <div class="col-12 text-center wow fadeInUp" data-wow-delay="100ms">
+                                            <button style="width: 100%;" type="submit"
+                                                class="btn roberto-btn mt-15">Edit
+                                                Hotel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<%- include('../partials/contact.ejs') %>
+<%- include('../partials/footerBox.ejs') %>
+<%- include('../partials/footer.ejs') %>

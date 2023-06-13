@@ -1,0 +1,421 @@
+ <!-- <!DOCTYPE html>
+ <html lang="en">
+
+ <head>
+     <meta charset="UTF-8">
+     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Document</title>
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+ </head>
+
+ <body>
+     <link href="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css" rel="stylesheet">
+     <script src="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js"></script>
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+     <link rel="stylesheet" href="/stylesheets/stars.css">
+     <style>
+         body {
+             margin: 0;
+             padding: 0;
+         }
+
+         #map {
+             width: 100%;
+             height: 100%;
+         }
+
+         .selected {
+             color: red;
+         }
+     </style>
+     <div><%= hotel.name %></div>
+     <div><%= hotel.address %></div>
+     <div><%= hotel.price %></div>
+     <div><%= hotel.isRoomAvailable %></div>
+     <div><%= hotel.overAllRating %></div>
+     <div><a href="/users/<%= hotel.author._id %>"><%= hotel.author.username %></a></div>
+     <div><%= hotel.createdAt.toDateString() %></div>
+     <div class="row">
+         <div class="col-8">
+             <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                 <div class="carousel-inner">
+                     <% for(let i in hotel.images){ %>
+                     <% if (i == 0) { %>
+                     <div class="carousel-item active">
+                         <img src="<%= hotel.images[i].url %>" class="img-fluid d-block w-100" alt="...">
+                     </div>
+                     <% } else { %>
+                     <div class="carousel-item">
+                         <img src="<%= hotel.images[i].url %>" class="img-fluid d-block w-100" alt="...">
+                     </div>
+                     <% } %>
+                     <% } %>
+                 </div>
+                 <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls"
+                     data-bs-slide="prev">
+                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                     <span class="visually-hidden">Previous</span>
+                 </button>
+                 <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls"
+                     data-bs-slide="next">
+                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                     <span class="visually-hidden">Next</span>
+                 </button>
+             </div>
+         </div>
+         <div class="col-4">
+             <div id="map"></div>
+         </div>
+     </div>
+     <div>
+         <a href="/hotels/<%= hotel._id %>/upvote"><i class="fs-2 bi bi-hand-thumbs-up-fill"></i></a>
+         <a href="/hotels/<%= hotel._id %>/downvote"><i class="fs-2 bi bi-hand-thumbs-down-fill"></i></a>
+     </div>
+     <% if (currentUser && hotel.author._id.equals(currentUser._id)) { %>
+     <div><a class="btn btn-info" href="/hotels/<%= hotel._id %>/edit">edit</a></div>
+     <form action="/hotels/<%= hotel._id %>?_method=DELETE" method="post">
+         <input class="btn btn-danger" type="submit" value="delete">
+     </form>
+     <% } %>
+     <div class="row">
+         <div class="col-3">
+             <form class="mt-5 needs-validation" action="/hotels/<%= hotel._id %>/reviews" method="post" novalidate>
+                 <fieldset class="starability-basic">
+                     <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked
+                         aria-label="No rating." />
+                     <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                     <label for="first-rate1" title="Terrible">1 star</label>
+                     <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                     <label for="first-rate2" title="Not good">2 stars</label>
+                     <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                     <label for="first-rate3" title="Average">3 stars</label>
+                     <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                     <label for="first-rate4" title="Very good">4 stars</label>
+                     <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                     <label for="first-rate5" title="Amazing">5 stars</label>
+                 </fieldset>
+                 <div class="form-floating mb-3">
+                     <input name="review[body]" type="text" class="form-control" id="price" placeholder="review body"
+                         required>
+                     <label for="price">Hotel Review Body</label>
+                     <div class="valid-feedback">
+                         Looks good!
+                     </div>
+                     <div class="invalid-feedback">
+                         Please enter some text.
+                     </div>
+                 </div>
+                 <input class=" mt-2 btn btn-primary" type="submit" value="add review">
+             </form>
+             <h1>all reviews</h1>
+             <% for(let review of hotel.reviews) { %>
+             <div><%= review.body %> </div>
+             <p class="starability-result" data-rating="<%= review.rating %>"></p>
+             <div><%= review.author.name %></div>
+             <% if (currentUser && review.author._id.equals(currentUser._id)) { %>
+             <form action="/hotels/<%= hotel._id %>/reviews/<%= review._id %>?_method=DELETE" method="post">
+                 <input type="submit" class="btn btn-sm btn-danger" value="delete">
+             </form>
+             <% } %>
+             <% } %>
+         </div>
+     </div>
+     <hr>
+
+     <script>
+         let arr = [];
+         arr.push( <%-coordinates[0] %> );
+         arr.push( <%-coordinates[1] %> );
+         mapboxgl.accessToken =
+             'pk.eyJ1Ijoic3BsaWNlcjk5MDQiLCJhIjoiY2xnN2s5OTB3MDY3azNndDNpa2owaHZ2YiJ9.PedtrrnU42OwchHkKqrmLQ';
+         const map = new mapboxgl.Map({
+             container: 'map', // container ID
+             // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+             style: 'mapbox://styles/mapbox/outdoors-v12', // style URL
+             center: arr, // starting position [lng, lat]
+             zoom: 15 // starting zoom
+         });
+         const marker1 = new mapboxgl.Marker()
+             .setLngLat(arr)
+             .setPopup(new mapboxgl.Popup()
+                 .setHTML('<h4><%=hotel.name%></h4><p><%=hotel.address%></p>'))
+             .addTo(map);
+     </script>
+     <script src="/scripts/form-validation.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+ </body>
+
+ </html> -->
+
+<%- include('../partials/header.ejs') %>
+<%- include('../partials/navbar.ejs') %>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js"></script>
+<link rel="stylesheet" href="/stylesheets/stars.css">
+<style>
+    #map {
+        width: 100%;
+        height: 20rem;
+        margin-bottom: 5rem;
+    }
+
+    .selected {
+        color: #1CC3B2;
+    }
+
+    .danger {
+        color: red;
+    }
+
+    .full{
+        width: 100%;
+    }
+
+    .m-auto{
+        margin: auto;
+    }
+
+    .white{
+        color: white;
+    }
+</style>
+<div class="breadcrumb-area bg-img bg-overlay jarallax" style="background-image: url(/img/bg-img/16.jpg);">
+    <div class="container h-100">
+        <div class="row h-100 align-items-end">
+            <div class="col-12">
+                <div class="breadcrumb-content d-flex align-items-center justify-content-between pb-5">
+                    <h2 class="room-title"><%= hotel.name %> &nbsp; &nbsp;<a href="/hotels/<%= hotel._id %>/upvote"><i class="fa-regular fa-thumbs-up <%= upvoteExists?'selected':'white' %>"></i></a> &nbsp; <a href="/hotels/<%= hotel._id %>/downvote"><i class="fa-regular fa-thumbs-down <%= downvoteExists?'selected':'white' %>" style="margin-top: 3px;"></i></a></h2>
+                    <h2 class="room-price">₹ <%= hotel.price %> <span>/ Per Night</span></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="roberto-rooms-area section-padding-100-0">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div id="map"></div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-lg-8">
+                <div class="single-room-details-area mb-50">
+                    <div class="room-thumbnail-slides mb-50">
+                        <div id="room-thumbnail--slide" class="carousel slide" data-ride="carousel">
+                            <div class="carousel-inner">
+                                <% for( let i in hotel.images ) { %>
+                                    <div class="carousel-item <%= i==0?'active':'' %>">
+                                        <img src="<%= hotel.crop(hotel.images[i].url, 1200, 779) %>" class="d-block w-100" alt="">
+                                    </div>
+                                <% } %>
+                            </div>
+                            <ol class="carousel-indicators">
+                                <% for( let i in hotel.images ) { %>
+                                    <li data-target="#room-thumbnail--slide" data-slide-to="<%= i %>" class="<%= i==0?'active':'' %>">
+                                        <img src="<%= hotel.crop(hotel.images[i].url, 1200, 779) %>" class="d-block w-100" alt="">
+                                    </li>
+                                <% } %>
+                            </ol>
+                        </div>
+                    </div>
+                    <div class="room-features-area d-flex flex-wrap mb-50">
+                        <h6>Size: <span>350-450 sq ft</span></h6>
+                        <h6>Capacity: <span>Max 3 persons</span></h6>
+                        <h6>Bed: <span>King bed / Double Beds</span></h6>
+                        <h6>Services: <span>Wifi, television, swimming pool, bike rentals, gym, spa.</span></h6>
+                    </div>
+                    <p>Welcome to StaySense, your gateway to a world of luxury and comfort. Explore our elegant accommodations, exceptional amenities, and captivating experiences, all designed to make your stay unforgettable. Discover the perfect blend of convenience and sophistication as you navigate our user-friendly interface, allowing you to effortlessly plan and book your dream getaway. Get ready to embark on a seamless online journey that showcases the essence of our hotel and promises an exceptional hospitality experience from start to finish</p>
+                </div>
+                <div class="room-service mb-50">
+                    <h4>Hotel Services</h4>
+                    <ul>
+                        <li><img src="/img/core-img/icon1.png" alt=""> Air Conditioning</li>
+                        <li><img src="/img/core-img/icon2.png" alt=""> Free drinks</li>
+                        <li><img src="/img/core-img/icon3.png" alt=""> Restaurant quality</li>
+                        <li><img src="/img/core-img/icon4.png" alt=""> Cable TV</li>
+                        <li><img src="/img/core-img/icon5.png" alt=""> Unlimited Wifi</li>
+                        <li><img src="/img/core-img/icon6.png" alt=""> Service 24/24</li>
+                    </ul>
+                </div>
+                <% if (hotel.reviews.length > 0) { %>
+                <div class="room-review-area mb-100">
+                    <h4>Hotel Reviews</h4>
+                    <% for(let review of hotel.reviews) { %>
+                    <div class="single-room-review-area d-flex align-items-center">
+                        <div class="reviwer-thumbnail">
+                            <img src="<%= review.author.image %>" alt="">
+                        </div>
+                        <div class="reviwer-content">
+                            <div class="reviwer-title-rating d-flex align-items-center justify-content-between">
+                                <div class="reviwer-title">
+                                    <h6>
+                                        <%= review.author.name %>
+                                        <% if (currentUser && review.author._id.equals(currentUser._id)) { %>
+                                        <form style="display: inline" action="/hotels/<%= hotel._id %>/reviews/<%= review._id %>?_method=DELETE" method="post">
+                                                <button class="btn" type="submit"><i class="fa-solid fa-trash-can danger"></i></button>
+                                        </form>
+                                        <% } %>
+                                    </h6>
+                                </div>
+                                <div class="reviwer-rating">
+                                    <% for( let i = 0; i < review.rating; i++ ) { %>
+                                        <i class="fa fa-star"></i>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <p><%= review.body %></p>
+                        </div>
+                    </div>
+                    <% } %>
+                </div>
+                <% } %>
+            </div>
+            <div class="col-12 col-lg-4">
+                <div class="hotel-reservation--area mb-100">
+                    <% if (currentUser && hotel.author._id.equals(currentUser._id)) { %>
+                        <div class="row">
+                            <div class="col-6">
+                                <span class="m-auto"><a class="roberto-btn full" href="/hotels/<%= hotel._id %>/edit">Edit</a></span>
+                            </div>
+                            <div class="col-6">
+                                <form class="mb-50" style="display: inline-block;" action="/hotels/<%= hotel._id %>?_method=DELETE" method="post">
+                                    <input class="roberto-btn full" type="submit" value="Delete">
+                                </form>
+                            </div>
+                        </div>
+                    <% } %>
+                    <div class="room-features-area d-flex flex-wrap mb-100" style="flex-direction: column;">
+                        <h6 style="width: 100%; max-width: 100%; border-right: 1px solid #ebebeb; border-bottom: none;">Posted: <span><%= moment(hotel.createdAt).fromNow() %></span></h6>
+                        <h6 style="width: 100%; max-width: 100%; border-right: 1px solid #ebebeb; border-bottom: none;">Address: <span><%= hotel.address %></span></h6>
+                        <h6 style="width: 100%; max-width: 100%;">Average Rating: <span><%= hotel.overAllRating %></span></h6>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="section-heading text-center wow fadeInUp" data-wow-delay="100ms">
+                                    <h6>Hotel Management</h6>
+                                    <h2>Book Rooms</h2>
+                                </div>
+                                <form class="mb-100" action="/hotels/<%= hotel._id %>/checkout" method="post">
+                                    <div class="form-group mb-30">
+                                        <label for="checkInDate">Date</label>
+                                        <div>
+                                            <div class="row no-gutters">
+                                                <div class="col-6">
+                                                    <input type="date" class="input-small form-control" name="checkInDate" id="checkInDate" placeholder="Check In">
+                                                </div>
+                                                <div class="col-6">
+                                                    <input type="date" class="input-small form-control" name="checkOutDate" placeholder="Check Out">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group mb-30">
+                                        <label for="guests">Guests</label>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <select name="adults" id="guests" class="form-control">
+                                                    <option value="0">Adults</option>
+                                                    <option value="1">01</option>
+                                                    <option value="2">02</option>
+                                                    <option value="3">03</option>
+                                                    <option value="4">04</option>
+                                                    <option value="5">05</option>
+                                                    <option value="6">06</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-6">
+                                                <select name="children" id="children" class="form-control">
+                                                    <option value="0">Children</option>
+                                                    <option value="1">01</option>
+                                                    <option value="2">02</option>
+                                                    <option value="3">03</option>
+                                                    <option value="4">04</option>
+                                                    <option value="5">05</option>
+                                                    <option value="6">06</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="submit" class="btn roberto-btn w-100">Book Room</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="section-heading text-center wow fadeInUp" data-wow-delay="100ms">
+                                    <h6>Reviews & Ratings</h6>
+                                    <h2>Leave a Review</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="roberto-contact-form">
+                                        <form action="/hotels/<%= hotel._id %>/reviews" method="post">
+                                            <div class="row">
+                                                <div class="col-12 wow fadeInUp" data-wow-delay="100ms">
+                                                    <fieldset class="starability-basic" style="margin: auto">
+                                                        <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="1" checked
+                                                            aria-label="No rating." />
+                                                        <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                                                        <label for="first-rate1" title="Terrible">1 star</label>
+                                                        <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                                                        <label for="first-rate2" title="Not good">2 stars</label>
+                                                        <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                                                        <label for="first-rate3" title="Average">3 stars</label>
+                                                        <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                                                        <label for="first-rate4" title="Very good">4 stars</label>
+                                                        <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                                                        <label for="first-rate5" title="Amazing">5 stars</label>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-12 wow fadeInUp" data-wow-delay="100ms">
+                                                    <textarea name="review[body]" class="form-control mb-30" placeholder="Your Message"></textarea>
+                                                </div>
+                                                <div class="col-12 text-center wow fadeInUp" data-wow-delay="100ms">
+                                                    <button type="submit" class="w-100 btn roberto-btn mt-15">Add Review</button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    let arr = [];
+    arr.push( <%-coordinates[0] %> );
+    arr.push( <%-coordinates[1] %> );
+    mapboxgl.accessToken =
+        'pk.eyJ1Ijoic3BsaWNlcjk5MDQiLCJhIjoiY2xnN2s5OTB3MDY3azNndDNpa2owaHZ2YiJ9.PedtrrnU42OwchHkKqrmLQ';
+    const map = new mapboxgl.Map({
+        container: 'map', // container ID
+        // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+        style: 'mapbox://styles/mapbox/outdoors-v12', // style URL
+        center: arr, // starting position [lng, lat]
+        zoom: 15 // starting zoom
+    });
+    const marker1 = new mapboxgl.Marker()
+        .setLngLat(arr)
+        .setPopup(new mapboxgl.Popup()
+            .setHTML('<h4><%=hotel.name%></h4><p><%=hotel.address%></p>'))
+        .addTo(map);
+</script>
+<script src="https://kit.fontawesome.com/207159304a.js" crossorigin="anonymous"></script>
+
+ <%- include('../partials/contact.ejs') %>
+ <%- include('../partials/footerBox.ejs') %>
+ <%- include('../partials/footer.ejs') %>

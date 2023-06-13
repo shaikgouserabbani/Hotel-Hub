@@ -1,0 +1,131 @@
+<%- include('../partials/header.ejs') %>
+<%- include('../partials/navbar.ejs') %>
+
+<!-- <div class="row">
+    <div class="col-3 mx-auto my-5">
+        ADD A NEW HOTEL
+        <form class="my-3" action="/hotels" method="post" enctype="multipart/form-data">
+            <div class="form-floating mb-3">
+                <input name="hotel[name]" type="text" class="form-control" id="name" placeholder="Hotel Name" required>
+                <label for="name">Hotel Name</label>
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
+                <div class="invalid-feedback">
+                    Please enter a name for the hotel.
+                </div>
+            </div>
+            <div class="form-floating mb-3">
+                <input name="hotel[address]" type="text" class="form-control" id="address" placeholder="Hotel Address"
+                    required>
+                <label for="address">Hotel Address</label>
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
+                <div class="invalid-feedback">
+                    Please enter an address for the hotel.
+                </div>
+            </div>
+            <div class="form-floating mb-3">
+                <input name="hotel[price]" type="number" class="form-control" id="price" placeholder="Hotel Price"
+                    min="100" max="100000" step="1" required>
+                <label for="price">Hotel Price</label>
+                <div class="valid-feedback">
+                    Looks good!
+                </div>
+                <div class="invalid-feedback">
+                    Please enter price.
+                </div>
+            </div>
+            <div class="form-floating mb-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="inputGroupFile01">Upload</label>
+                    <input name="image" type="file" class="form-control" id="inputGroupFile01" multiple required>
+                </div>
+            </div>
+            <button type="submit">add</button>
+        </form>
+    </div>
+</div> -->
+
+<div class="breadcrumb-area contact-breadcrumb bg-img bg-overlay jarallax"
+    style="background-image: url(/img/bg-img/18.jpg);">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="breadcrumb-content text-center mt-100">
+                    <h2 class="page-title">Add a new Hotel</h2>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb justify-content-center">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">New Hotel</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<section class="google-maps-contact-info" style="margin-bottom: 5rem;">
+    <div class="container-fluid">
+        <div class="google-maps-contact-content">
+            <div class="row">
+                <div class="col-12">
+                    <div class="section-heading text-center wow fadeInUp" data-wow-delay="100ms">
+                        <h6>Hotel Management</h6>
+                        <h2>Add a new Hotel</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="roberto-contact-form">
+                        <form action="/hotels" method="post" enctype="multipart/form-data">
+                            <div class="row">
+                                <div class="col-4" style="margin: auto;">
+                                    <div class="row">
+                                        <div class="col-12 col-lg-12 wow fadeInUp" data-wow-delay="100ms">
+                                            <input type="text" name="hotel[name]" class="form-control mb-30"
+                                                placeholder="Hotel Radisson" required>
+                                        </div>
+                                        <div class="col-12 col-lg-12 wow fadeInUp" data-wow-delay="100ms">
+                                            <input type="text" name="hotel[address]" class="form-control mb-30"
+                                                placeholder="New Delhi" required>
+                                        </div>
+                                        <div class="col-12 col-lg-12 wow fadeInUp" data-wow-delay="100ms">
+                                            <input type="number" name="hotel[price]" class="form-control mb-30"
+                                                placeholder="Hotel Price" min="100" max="100000" step="1" required>
+                                        </div>
+                                        <div class="col-12 col-lg-12 wow fadeInUp" data-wow-delay="100ms">
+                                            <label id="filefield" for="upload">Select
+                                                Images</label>
+                                            <input id="upload" type="file" name="image" multiple style="display:none;"
+                                                required>
+                                        </div>
+                                        <div class="col-12 text-center wow fadeInUp" data-wow-delay="100ms">
+                                            <button style="width: 100%;" type="submit" class="btn roberto-btn mt-15">Add
+                                                Hotel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    document.getElementById('upload').addEventListener('change', function () {
+        let filename = '';
+        this.files[0].name;
+        for (let file of this.files) {
+            filename += file.name + ', ';
+        }
+        $('#filefield').text(filename.slice(0, -2));
+    })
+</script>
+<%- include('../partials/contact.ejs') %>
+<%- include('../partials/footerBox.ejs') %>
+<%- include('../partials/footer.ejs') %>
